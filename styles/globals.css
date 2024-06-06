@@ -1,3 +1,37 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+}
+
+.bg-primary {
+  background-color: #1f1d2b;
+}
+
+.text-primary {
+  color: #2d3748; /* Gray-800 */
+}
+
+.bg-secondary {
+  background-color: #252836;
+}
+
+.input-label {
+  color: white !important;
+}
+
+.text-orange {
+  color: #DB6E59;
+}
+
+.bg-orange {
+  background-color: #DB6E59;
+}
