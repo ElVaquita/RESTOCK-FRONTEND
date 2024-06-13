@@ -1,7 +1,9 @@
 "use client";
 import { Input, Button, Card } from '@nextui-org/react';
-import '@/styles/globals.css'; // Asegúrate de importar tu archivo CSS global
+import CloseIcon from '@mui/icons-material/Close';
+import '@/styles/globals.css'; 
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 
 export default function Register() {
   const [name, setName] = useState('');
@@ -20,7 +22,7 @@ export default function Register() {
         <Card className="max-w-md w-full p-8 bg-secondary ">
           <div className="text-center mb-6">
             <h3 className="text-white text-2xl font-bold mt-4">Registro de cuenta</h3>
-          </div>
+            <CloseIcon className="absolute top-4 right-4 text-white cursor-pointer" onClick={() => window.location.href = '/login'} />          </div>
           <div className="mb-4">
             <Input
               isRequired
