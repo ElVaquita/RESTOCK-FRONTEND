@@ -1,5 +1,5 @@
 import React from "react";
-import { useRouter } from "next/navigation"; // Import correct router from next
+import { useRouter } from "next/navigation"; 
 
 type TableCardProps = {
   name: string;
