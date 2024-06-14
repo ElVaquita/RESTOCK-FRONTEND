@@ -1,11 +1,12 @@
 "use client";
 
 import React, { useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import Image from 'next/image';
 import Search from "@mui/icons-material/Search";
 import DeleteIcon from '@mui/icons-material/Delete';
 import SidebarWaiter from "./SideBarWaiter";
+
 
 type Product = {
   id: number;
@@ -326,6 +327,7 @@ const products: Product[] = [
 const OrderPage: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('')
+  const [showModal, setShowModal] = useState(false);
 
   const filteredProducts = products.filter(product =>
     product.name.toLowerCase().includes(searchTerm.toLowerCase()) &&
@@ -333,7 +335,8 @@ const OrderPage: React.FC = () => {
   );
 
   const params = useParams();
-  const name = params.name; // Obtener el nombre de la mesa desde la URL dinámica
+  const name = params.name; 
+  const router = useRouter();
   const [orderItems, setOrderItems] = useState<
     { product: Product; quantity: number; note: string }[]
   >([]);
@@ -370,8 +373,13 @@ const OrderPage: React.FC = () => {
   const handleCategoryClick = (category: string) => {
     setSelectedCategory(prevCategory => prevCategory === category ? '' : category);
   };
-//TODO: Implemetar habilitacion de boton para emitir pago
-//TODO: Implementar añadir productos a mesa ocupada
+
+  const handleAccept = () => {
+    setShowModal(false);
+    router.push('/home-waiter');
+  }
+//TODO: LOGICA DE EMITIR PAGO
+//TODO: LOGICA DE ADMINISTRAR STOCK
 
   return (
     <div className="flex bg-gray-800 text-white">
@@ -390,6 +398,7 @@ const OrderPage: React.FC = () => {
             />
           </div>
         </div>
+        
         <div className="h-1 bg-red-600 mb-4"></div> 
         <div className="flex space-x-4 mb-8">
           <button 
@@ -449,28 +458,33 @@ const OrderPage: React.FC = () => {
           ))}
         </div>
       </div>
+      
       <div className="w-1/3 bg-gray-900 p-8 rounded-lg">
-        <h2 className="text-xl mb-4">Orden #{name}</h2>
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-xl">Orden #{name}</h2>
+          <button className="bg-gray-600 hover:bg-red-600 text-white py-2 px-4 rounded-lg">
+            Emitir pago
+          </button>
+        </div>
+        <div className="h-1 bg-red-600 mb-8 mt-9"></div> 
         <ul className="space-y-4">
           {orderItems.map((item, index) => (
-            <li key={index} className="flex justify-between items-center">
-              <div>
-                <h3>{item.product.name}</h3>
-                <p className="text-gray-400">
-                  ${item.product.price.toLocaleString("es-CL")}
-                </p>
+            <li key={index} className="flex flex-col mb-4">
+              <h3>{item.product.name}</h3>
+              <p className="text-gray-400">
+                ${item.product.price.toLocaleString("es-CL")}
+              </p>
+              <div className="flex items-center mt-2 space-x-2">
                 <input
                   type="text"
                   placeholder="Nota del pedido"
-                  className="mt-2 p-2 bg-gray-800 rounded-lg w-full"
+                  className="p-2 bg-gray-800 rounded-lg flex-grow"
                   value={item.note}
                   onChange={(e) => updateNote(index, e.target.value)}
                 />
-              </div>
-              <div className="flex items-center">
                 <input
                   type="number"
-                  className="p-2 w-16 bg-gray-800 rounded-lg text-center mr-2"
+                  className="p-2 bg-gray-800 rounded-lg text-center w-16"
                   value={item.quantity}
                   onChange={(e) =>
                     updateQuantity(index, parseInt(e.target.value))
@@ -497,10 +511,29 @@ const OrderPage: React.FC = () => {
             <span>${finalTotal.toLocaleString("es-CL", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</span>
           </p>
         </div>
-        <button className="mt-8 w-full bg-red-600 py-3 rounded-lg">
+        <button
+          className={`mt-8 w-full py-3 rounded-lg ${orderItems.length > 0 ? 'bg-red-600' : 'bg-gray-600 cursor-not-allowed'}`}
+          disabled={orderItems.length === 0}
+          onClick={() => setShowModal(true)}
+        >
           Confirmar orden
         </button>
       </div>
+      {showModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+          <div className="bg-gray-400 p-8 rounded-lg text-black">
+            <p>Su orden fue enviada a cocina correctamente!</p>
+            <div className="flex justify-center items-center h-full w-full">
+              <button
+                className="mt-8 py-2 px-8 bg-red-600 text-white rounded-lg"
+                onClick={handleAccept}
+              >
+                Aceptar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
