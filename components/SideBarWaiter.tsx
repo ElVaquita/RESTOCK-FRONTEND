@@ -8,7 +8,7 @@ const SidebarWaiter: React.FC = () => {
   const router = useRouter();
 
   const handleLogout = () => {
-    Cookies.remove('accessToken');
+    Cookies.remove('accessToken', {path : "/"});
     router.push('/');
   };
 

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { jwtVerify } from 'jose';
+import Cookies from 'js-cookie';
 
 const secret = new TextEncoder().encode(process.env.JWT_SECRET);
 
@@ -8,6 +9,20 @@ if (!secret) {
   console.error("JWT_SECRET is not defined");
   process.exit(1); // Termina el proceso si JWT_SECRET no está definido
 }
+
+const checkTokenExpiration = async (accessToken: string) => {
+  try {
+    const { payload } = await jwtVerify(accessToken, secret);
+    const expirationTime = (payload.exp as number)  * 1000; // Convertir expiración a milisegundos
+    const currentTime = Date.now();
+
+    // Verificar si el token ha expirado
+    return currentTime > expirationTime;
+  } catch (error) {
+    console.error("Error verifying JWT:", error);
+    return true; 
+  }
+};
 
 // Middleware function
 export async function middleware(request: NextRequest) {
@@ -17,6 +32,18 @@ export async function middleware(request: NextRequest) {
 
   if (!accessToken) {
     console.log("No token, redirecting to login");
+    return NextResponse.redirect(new URL('/', request.url));
+  }
+
+  // Verificar si el token está expirado
+  const tokenExpired = await checkTokenExpiration(accessToken);
+
+  if (tokenExpired) {
+    console.log("Token expirado, eliminando y redirigiendo al inicio de sesión");
+
+    // Eliminar el token de las cookies si ha expirado
+    Cookies.remove('accessToken', { path: '/' });
+
     return NextResponse.redirect(new URL('/', request.url));
   }
 
