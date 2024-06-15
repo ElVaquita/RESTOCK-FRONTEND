@@ -2,6 +2,7 @@
 module.exports = {
   // Define las extensiones de archivos de tus páginas
   pageExtensions: ['tsx', 'jsx', 'js', 'ts'],
+  reactStrictMode: true,
 
   // Define una función para generar rutas de páginas dinámicas
   async rewrites() {

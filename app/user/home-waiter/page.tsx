@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useState } from 'react';
-import TableCard from '../../components/TableCard';
-import SidebarWaiter from '../../components/SideBarWaiter';
+import TableCard from '../../../components/TableCard';
+import SidebarWaiter from '../../../components/SideBarWaiter';
 import SearchIcon from '@mui/icons-material/Search';
 
 const HomeWaiterPage: React.FC = () => {

@@ -4,6 +4,8 @@ import { Input, Button, Card } from '@nextui-org/react';
 import { useState } from 'react';
 import { EyeFilledIcon, EyeSlashFilledIcon } from '@/components/icons';
 import { useRouter } from 'next/navigation';
+import { loginBack } from '../../services/auth.service'
+import Cookies from 'js-cookie';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -14,9 +16,15 @@ const Login = () => {
 
   const toggleVisibility = () => setIsVisible(!isVisible);
 
-  const handleLogin = () => {
-      router.push('/home-waiter');
-      console.log(email, password);
+  const handleLogin = async () => {
+    try {
+      const login = await loginBack({email: email, password: password});
+      Cookies.set('accessToken', login.token); // 1 hora
+      router.push('/user/home-waiter');
+    } catch (error) {
+      console.error(error);
+      alert("Failed to log in. Please check your credentials and try again.");
+    }
   };
 
   return (

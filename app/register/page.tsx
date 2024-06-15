@@ -3,7 +3,8 @@ import { Input, Button, Card } from '@nextui-org/react';
 import CloseIcon from '@mui/icons-material/Close';
 import '@/styles/globals.css'; 
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useRouter } from 'next/navigation';
+import { registerBack } from '@/services/auth.service';
 
 export default function Register() {
   const [name, setName] = useState('');
@@ -11,8 +12,16 @@ export default function Register() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  const handleRegister = () => {
-    console.log(name, rut, email, password);
+  const router = useRouter();
+
+  const handleRegister = async () => {
+    try {
+      const register = await registerBack({name:name, rut:rut, email: email, password: password});
+      router.push('/');
+    } catch (error) {
+      console.error(error);
+      alert("Failed to register. Please check your credentials and try again.");
+    }
   };
 
   return (
