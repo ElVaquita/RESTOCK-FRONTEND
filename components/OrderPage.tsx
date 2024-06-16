@@ -6,6 +6,12 @@ import Image from 'next/image';
 import Search from "@mui/icons-material/Search";
 import DeleteIcon from '@mui/icons-material/Delete';
 import SidebarWaiter from "./SideBarWaiter";
+import SearchOffIcon from '@mui/icons-material/SearchOff';
+import Box from '@mui/material/Box';
+import Tooltip from '@mui/material/Tooltip';
+import IconButton from "@mui/material/IconButton";
+import SaveIcon from '@mui/icons-material/Save';
+import Typography from '@mui/material/Typography';
 
 
 type Product = {
@@ -15,6 +21,7 @@ type Product = {
   stock: number;
   category: string;
   image: string;
+  description?: string;
 };
 
 const products: Product[] = [
@@ -25,6 +32,7 @@ const products: Product[] = [
     stock: 10,
     category: "Platos de fondo",
     image: "/images/Entradas/1.jpg",
+    description: "Prueba de descripción para jamón queso",
   },
   {
     id: 36,
@@ -33,6 +41,7 @@ const products: Product[] = [
     stock: 10,
     category: "Platos de fondo",
     image: "/images/PlatosFondo/10.jpg",
+    description: "Prueba de descripción para pesto y pollo",
   },
   {
     id: 4,
@@ -328,6 +337,10 @@ const OrderPage: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('')
   const [showModal, setShowModal] = useState(false);
+  const [email, setEmail] = useState('');
+  const [savedEmail, setSavedEmail] = useState('');
+  const [showDescription, setShowDescription] = useState<{ visible: boolean; description: string }>({ visible: false, description: '' });
+  const [hoveredProductId, setHoveredProductId] = useState<number | null>(null);
 
   const filteredProducts = products.filter(product =>
     product.name.toLowerCase().includes(searchTerm.toLowerCase()) &&
@@ -376,8 +389,25 @@ const OrderPage: React.FC = () => {
 
   const handleAccept = () => {
     setShowModal(false);
-    router.push('/home-waiter');
+    router.push('/user/home-waiter');
   }
+
+  const handleMouseEnter = (description: string) => {
+    setShowDescription({ visible: true, description });
+  };
+
+  const handleMouseLeave = () => {
+    setShowDescription({ visible: false, description: '' });
+  };
+
+  const handlePayment = () => {
+
+  }
+
+  const handleSaveEmail = () => {
+    setSavedEmail(email);
+  };
+
 //TODO: LOGICA DE EMITIR PAGO
 //TODO: LOGICA DE ADMINISTRAR STOCK
 
@@ -433,36 +463,58 @@ const OrderPage: React.FC = () => {
           </button>
         </div>
         <p className="text-xl mb-8">Selecciona los productos...</p>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          {filteredProducts.map((product) => (
-            <div
-              key={product.id}
-              className="bg-gray-700 p-4 rounded-lg cursor-pointer"
-              onClick={() => addToOrder(product)}
-            >
-              <Image
-                src={product.image}
-                alt={product.name}
-                width={200}
-                height={150}
-                className="w-full h-32 object-cover rounded-lg mb-2"
-              />
-              <h2 className="text-lg">{product.name}</h2>
-              <p className="text-sm text-gray-400">
-                ${product.price.toLocaleString("es-CL")}
-              </p>
-              <p className="text-sm text-gray-400">
-                {product.stock} platos en stock
-              </p>
-            </div>
-          ))}
+        {(filteredProducts.length === 0 || products.length === 0 )? (
+          <Box display="flex" flexDirection="column" alignItems="center" justifyContent="center" minHeight="60vh">
+            <SearchOffIcon style={{ fontSize: 60, marginBottom: 16 }} />
+            <p className="text-xl">No se encontraron productos</p>
+          </Box>
+        ): (
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            {filteredProducts.map((product) => (
+              <Tooltip 
+                title={
+                  <React.Fragment>
+                    <Typography color="inherit" variant="subtitle2" >Descripción</Typography>
+                    <Typography color="inherit" variant="caption" >{product.description || ''}</Typography>
+                  </React.Fragment>
+                } 
+                arrow key={product.id}
+              >
+                <div
+                  className="bg-gray-700 p-4 rounded-lg cursor-pointer"
+                  onClick={() => addToOrder(product)}
+                  onMouseEnter={() => handleMouseEnter(product.description || '')}
+                  onMouseLeave={handleMouseLeave}
+                >
+                  <Image
+                    src={product.image}
+                    alt={product.name}
+                    width={200}
+                    height={150}
+                    className="w-full h-32 object-cover rounded-lg mb-2"
+                  />
+                  <h2 className="text-lg">{product.name}</h2>
+                  <p className="text-sm text-gray-400">
+                    ${product.price.toLocaleString("es-CL")}
+                  </p>
+                  <p className="text-sm text-gray-400">
+                    {product.stock} platos en stock
+                  </p>
+                </div>
+              </Tooltip>
+            ))}
+          </div>
+        )}  
         </div>
-      </div>
       
       <div className="w-1/3 bg-gray-900 p-8 rounded-lg">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl">Orden #{name}</h2>
-          <button className="bg-gray-600 hover:bg-red-600 text-white py-2 px-4 rounded-lg">
+          <button 
+            className="bg-gray-600 hover:bg-red-600 text-white py-2 px-4 rounded-lg"
+            disabled={orderItems.length === 0}
+            onClick={handlePayment}
+          >
             Emitir pago
           </button>
         </div>
@@ -510,6 +562,25 @@ const OrderPage: React.FC = () => {
             <span>Total</span>
             <span>${finalTotal.toLocaleString("es-CL", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</span>
           </p>
+          <div className="flex mt-4 ">
+            <input
+              type= "email"
+              placeholder="Correo electrónico"
+              className="p-2 bg-gray-800 rounded-lg flex-grow w-16"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+            <IconButton              
+              onClick={handleSaveEmail}
+            >
+              <SaveIcon sx= {{ color: "white" }}/>
+            </IconButton>
+          </div>
+          {savedEmail && (
+            <p className="mt-4 text-green-500">
+              Correo {savedEmail} guardado con exito
+            </p>
+          )}
         </div>
         <button
           className={`mt-8 w-full py-3 rounded-lg ${orderItems.length > 0 ? 'bg-red-600' : 'bg-gray-600 cursor-not-allowed'}`}

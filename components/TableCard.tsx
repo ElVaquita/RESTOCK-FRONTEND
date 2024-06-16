@@ -11,7 +11,7 @@ const TableCard: React.FC<TableCardProps> = ({ name, capacity, status }) => {
   const router = useRouter();
 
   const handleCardClick = () => {
-    router.push(`/table/${name.split(" ")[1]}/`);
+    router.push(`/user/table/${name.split(" ")[1]}/`);
   };
 
   const circleColor = status === "Disponible" ? "bg-green-500" : "bg-red-500";

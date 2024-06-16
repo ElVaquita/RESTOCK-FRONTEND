@@ -4,13 +4,20 @@ const ORDER_URL = "http://localhost:8000/orders"
 
 // TABLES
 
-export const createTableBack = async ({name, quantity, state}) => {
+export const createTableBack = async ({name, quantity, state, accessToken}) => {
     try {
         const response = await axios.post(`${ORDER_URL}/tables/create`,{
             name: name,
             quantity: quantity,
-            state: state
-        })
+            state: state,
+        }, {
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE",
+                "Access-Control-Allow-Headers": "Content-Type, Authorization",
+            }
+        });
 
         const responseData = response.data;
 
@@ -25,9 +32,15 @@ export const createTableBack = async ({name, quantity, state}) => {
     }
 }
 
-export const getTableByNameBack = async ({name}) => {
+export const getTableByNameBack = async ({name, accessToken}) => {
     try {
         const response = await axios.get(`${ORDER_URL}/tables/name`,{
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE",
+                "Access-Control-Allow-Headers": "Content-Type, Authorization",
+            },
             params: {name: name}
         });
 
@@ -44,9 +57,16 @@ export const getTableByNameBack = async ({name}) => {
     }
 }
 
-export const getAllTablesBack = async () => {
+export const getAllTablesBack = async (accessToken) => {
     try {
-        const response = await axios.get(`${ORDER_URL}/tables`);
+        const response = await axios.get(`${ORDER_URL}/tables`,{
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE",
+                "Access-Control-Allow-Headers": "Content-Type, Authorization",
+            }
+        });
 
         const responseData = response.data;
 
@@ -61,12 +81,19 @@ export const getAllTablesBack = async () => {
     }
 }
 
-export const updateTableStateBack = async ({id, quantity, state}) => {
+export const updateTableStateBack = async ({id, quantity, state, accessToken}) => {
     try {
         const response = await axios.post(`${ORDER_URL}/tables/update`, {
             id:id,
             quantity: quantity,
             state: state
+        }, {
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE",
+                "Access-Control-Allow-Headers": "Content-Type, Authorization",
+            }
         });
 
         const responseData = response.data;
@@ -105,7 +132,7 @@ export const getAllOrdersBack = async () => {
 
 // SALES
 
-export const createSaleBack = async ({userName, tableName, date, tip, totalPrice, products}) => {
+export const createSaleBack = async ({userName, tableName, date, tip, totalPrice, products, email}) => {
     try {
         const response = await axios.post(`${ORDER_URL}/sales/create`, {
             userName:userName,
@@ -113,7 +140,8 @@ export const createSaleBack = async ({userName, tableName, date, tip, totalPrice
             date: date,
             tip:tip,
             totalPrice: totalPrice,
-            products: products
+            products: products,
+            email:email
         });
 
         const responseData = response.data;

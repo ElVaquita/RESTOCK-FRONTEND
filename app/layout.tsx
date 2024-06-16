@@ -1,6 +1,7 @@
 import '@/styles/globals.css';
 import { ReactNode } from 'react';
 import Link from 'next/link';
+import CssBaseline from '@mui/material/CssBaseline';
 
 export const metadata = {
   title: 'Restock',
@@ -19,6 +20,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
             </div>
           </nav>
         </header> */}
+        <CssBaseline />
         <main className="flex-grow">{children}</main>
         <footer className="w-full bg-primary text-white p-4 text-center">
           <p>&copy; {new Date().getFullYear()} Restock. Todos los derechos reservados.</p>
