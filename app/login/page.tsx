@@ -65,82 +65,82 @@ const Login = () => {
   };
 
   return (
-    <div>
-      {reLoginAlert && (
-        <Alert severity="info" onClose={handleAlertClose} sx = {{textAlign: 'center' }}>
-          Por favor, vuelva a iniciar sesión para acceder
-        </Alert>
-      )}
-      <div className="flex min-h-screen bg-gray-900">
-        <div className="relative flex-1">
-          <img src="/images/Restaurant.jpeg" alt="Restaurant" className="object-cover w-full h-full" />
-        </div>
-        <div className="flex-1 flex items-center justify-center p-10">
-          <Card className="max-w-md w-full p-8 bg-secondary">
-            <div className="text-center mb-6">
-              <img src="/images/logo.png" alt="Restock Restaurant" className="mx-auto" width={170} height={170} />
-            </div>
-
-            {generalError && <span className="block text-red-500 mb-4 text-sm">{generalError}</span>}
-
-            <div className="mb-4">
-              <Input
-                labelPlacement='outside'
-                variant="bordered"
-                label={<span className="input-label">Ingrese su correo</span>}
-                placeholder=' '
-                className="mb-4 text-white"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                onFocus={() => {
-                  clearError('email');
-                  setGeneralError('');
-                }}
-              />
-              {errors.email && <span className="block text-red-500 text-sm">{errors.email}</span>}
-            </div>
-            <div className="mb-4">
-              <Input
-                isRequired
-                labelPlacement='outside'
-                variant="bordered"
-                label={<span className="input-label">Ingrese su contraseña</span>}
-                placeholder=' '
-                className="mb-4 text-white"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                onFocus={() => {
-                  clearError('password');
-                  setGeneralError('');
-                }}
-                endContent={<button className="focus:outline-none" type="button" onClick={toggleVisibility}>
-                  {isVisible ? (
-                    <EyeSlashFilledIcon className="text-2xl text-default-400 pointer-events-none" />
-                  ) : (
-                    <EyeFilledIcon className="text-2xl text-default-400 pointer-events-none" />
-                  )}
-                </button>}
-                type={isVisible ? "text" : "password"}
-              />
-              {errors.password && <span className="block text-red-500 text-sm">{errors.password}</span>}
-            </div>
-            <div className="text-sm text-orange mb-4">
-              <a href="#" className="underline">¿Olvidó su correo o contraseña?</a>
-            </div>
-            <Button
-              color="primary"
-              radius='none'
-              className="w-full mb-4 bg-orange"
-              onClick={handleLogin}
-            >
-              Acceder
-            </Button>
-            <div className="text-center text-sm text-gray-400">
-              ¿No tienes una cuenta? <a href="/register" className="underline">Registrarme</a>
-            </div>
-          </Card>
-        </div>
+    <div className="flex min-h-screen bg-gray-900">
+      <div className="relative flex-1">
+        <img src="/images/Restaurant.jpeg" alt="Restaurant" className="object-cover w-full h-full" />
       </div>
+      <div className="flex-1 flex items-center justify-center p-10">
+        <Card className="max-w-md w-full p-8 bg-secondary">
+          <div className="text-center mb-6">
+            <img src="/images/logo.png" alt="Restock Restaurant" className="mx-auto" width={170} height={170} />
+          </div>
+
+          {generalError && <span className="block text-red-500 mb-4 text-sm">{generalError}</span>}
+
+          <div className="mb-4">
+            <Input
+              labelPlacement='outside'
+              variant="bordered"
+              label={<span className="input-label">Ingrese su correo</span>}
+              placeholder=' '
+              className="mb-4 text-white"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              onFocus={() => {
+                clearError('email');
+                setGeneralError('');
+              }}
+            />
+            {errors.email && <span className="block text-red-500 text-sm">{errors.email}</span>}
+          </div>
+          <div className="mb-4">
+            <Input
+              isRequired
+              labelPlacement='outside'
+              variant="bordered"
+              label={<span className="input-label">Ingrese su contraseña</span>}
+              placeholder=' '
+              className="mb-4 text-white"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              onFocus={() => {
+                clearError('password');
+                setGeneralError('');
+              }}
+              endContent={<button className="focus:outline-none" type="button" onClick={toggleVisibility}>
+                {isVisible ? (
+                  <EyeSlashFilledIcon className="text-2xl text-default-400 pointer-events-none" />
+                ) : (
+                  <EyeFilledIcon className="text-2xl text-default-400 pointer-events-none" />
+                )}
+              </button>}
+              type={isVisible ? "text" : "password"}
+            />
+            {errors.password && <span className="block text-red-500 text-sm">{errors.password}</span>}
+          </div>
+          <div className="text-sm text-orange mb-4">
+            <a href="#" className="underline">¿Olvidó su correo o contraseña?</a>
+          </div>
+          <Button
+            color="primary"
+            radius='none'
+            className="w-full mb-4 bg-orange"
+            onClick={handleLogin}
+          >
+            Acceder
+          </Button>
+          <div className="text-center text-sm text-gray-400">
+            ¿No tienes una cuenta? <a href="/register" className="underline">Registrarme</a>
+          </div>
+        </Card>
+      </div>
+      {reLoginAlert && (
+        <div className="absolute top-0 left-0 w-full z-50">
+          <Alert severity="info" onClose={handleAlertClose} sx={{ textAlign: 'center' }}>
+            Por favor, vuelva a iniciar sesión para acceder
+          </Alert>
+        </div>
+      )}
     </div>
   );
 }

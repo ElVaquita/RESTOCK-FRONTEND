@@ -511,7 +511,7 @@ const OrderPage: React.FC = () => {
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl">Orden #{name}</h2>
           <button 
-            className="bg-gray-600 hover:bg-red-600 text-white py-2 px-4 rounded-lg"
+            className={`text-white py-2 px-4 rounded-lg ${orderItems.length > 0 ? 'bg-red-600 hover:bg-red-800' : 'bg-gray-600 cursor-not-allowed'} `}
             disabled={orderItems.length === 0}
             onClick={handlePayment}
           >
@@ -583,7 +583,7 @@ const OrderPage: React.FC = () => {
           )}
         </div>
         <button
-          className={`mt-8 w-full py-3 rounded-lg ${orderItems.length > 0 ? 'bg-red-600' : 'bg-gray-600 cursor-not-allowed'}`}
+          className={`mt-8 w-full py-3 rounded-lg ${orderItems.length > 0 ? 'bg-red-600 hover:bg-red-800' : 'bg-gray-600 cursor-not-allowed'}`}
           disabled={orderItems.length === 0}
           onClick={() => setShowModal(true)}
         >
