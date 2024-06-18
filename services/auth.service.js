@@ -2,6 +2,30 @@ import axios from "axios";
 
 const AUTH_URL = "http://localhost:8000/auth"
 
+export const getUserBack = async (id, accessToken) => {
+    try {
+        const response = await axios.post(`${AUTH_URL}/user/${id}`,{
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE",
+                "Access-Control-Allow-Headers": "Content-Type, Authorization",
+            }
+        })
+
+        const responseData = response.data;
+
+        if (responseData.status !== 200 && responseData.status !== 201) {
+            throw new Error(`An error has occurred: ${responseData.error.join(', ')}`);
+        }
+        console.log("Successful login");
+        return responseData; 
+    } catch (error){
+        console.error(error);
+        throw new Error("An error has occurred: Failed to log in");
+    }
+}
+
 export const loginBack = async ({email, password}) => {
     try {
         const response = await axios.post(`${AUTH_URL}/login`,{

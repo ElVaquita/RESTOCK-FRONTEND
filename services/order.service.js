@@ -4,7 +4,7 @@ const ORDER_URL = "http://localhost:8000/orders"
 
 // TABLES
 
-export const createTableBack = async ({name, quantity, state, accessToken}) => {
+export const createTableBack = async (name, quantity, state, accessToken) => {
     try {
         const response = await axios.post(`${ORDER_URL}/tables/create`,{
             name: name,
@@ -32,7 +32,7 @@ export const createTableBack = async ({name, quantity, state, accessToken}) => {
     }
 }
 
-export const getTableByNameBack = async ({name, accessToken}) => {
+export const getTableByNameBack = async (name, accessToken) => {
     try {
         const response = await axios.get(`${ORDER_URL}/tables/name`,{
             headers: {
@@ -81,12 +81,13 @@ export const getAllTablesBack = async (accessToken) => {
     }
 }
 
-export const updateTableStateBack = async ({id, quantity, state, accessToken}) => {
+export const updateTableStateBack = async (id, quantity, state, activeOrderId, accessToken) => {
     try {
         const response = await axios.post(`${ORDER_URL}/tables/update`, {
             id:id,
             quantity: quantity,
-            state: state
+            state: state,
+            activeOrderId: activeOrderId
         }, {
             headers: {
                 Authorization: `Bearer ${accessToken}`,
@@ -112,6 +113,59 @@ export const updateTableStateBack = async ({id, quantity, state, accessToken}) =
 
 // ORDERS
 
+export const createOrderBack = async (products, userId, nameTable, email, accessToken) => {
+    try {
+        const response = await axios.post(`${ORDER_URL}`, {
+            products: products,
+            userId: userId,
+            nameTable: nameTable,
+            email: email
+        }, {
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE",
+                "Access-Control-Allow-Headers": "Content-Type, Authorization",
+            }
+        });
+
+        const responseData = response.data;
+
+        if (responseData.status !== 200 && responseData.status !== 201) {
+            throw new Error(`An error has occurred: ${responseData.error.join(', ')}`);
+        }
+        console.log("Creating order");
+        return responseData; 
+    } catch (error){
+        console.error(error);
+        throw new Error("An error has occurred: Failed to create an order");
+    }
+}
+
+export const getOrderByIdBack = async (id, accessToken) => {
+    try {
+        const response = await axios.get(`${ORDER_URL}/${id}`, {
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE",
+                "Access-Control-Allow-Headers": "Content-Type, Authorization",
+            }
+        });
+
+        const responseData = response.data;
+
+        if (responseData.status !== 200 && responseData.status !== 201) {
+            throw new Error(`An error has occurred: ${responseData.error.join(', ')}`);
+        }
+        console.log("Looking for a order");
+        return responseData; 
+    } catch (error){
+        console.error(error);
+        throw new Error("An error has occurred: Failed to found an order");
+    }
+}
+
 export const getAllOrdersBack = async () => {
     try {
         const response = await axios.get(`${ORDER_URL}`);
@@ -130,9 +184,39 @@ export const getAllOrdersBack = async () => {
 }
 
 
+export const updateOrderBack = async (orderId, products, userId, nameTable, email,accessToken) => {
+    try {
+        const response = await axios.post(`${ORDER_URL}/update/${orderId}`, {
+            products:products,
+            userId: userId,
+            nameTable: nameTable,
+            email: email
+        }, {
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE",
+                "Access-Control-Allow-Headers": "Content-Type, Authorization",
+            }
+        });
+
+        const responseData = response.data;
+
+        if (responseData.status !== 200 && responseData.status !== 201) {
+            throw new Error(`An error has occurred: ${responseData.error.join(', ')}`);
+        }
+        console.log("Updating order");
+        return responseData; 
+    } catch (error){
+        console.error(error);
+        throw new Error("An error has occurred: Failed to update an order");
+    }
+}
+
+
 // SALES
 
-export const createSaleBack = async ({userName, tableName, date, tip, totalPrice, products, email,accessToken}) => {
+export const createSaleBack = async (userName, tableName, date, tip, totalPrice, products, email,accessToken) => {
     try {
         const response = await axios.post(`${ORDER_URL}/sales/create`, {
             userName:userName,
@@ -188,7 +272,7 @@ export const getAllSalesBack = async (accessToken) => {
     }
 }
 
-export const saleFilterByUserNameBack = async ({userName, accessToken}) => {
+export const saleFilterByUserNameBack = async (userName, accessToken) => {
     try {
         const response = await axios.get(`${ORDER_URL}/sales/user`, {
             headers: {
@@ -214,7 +298,7 @@ export const saleFilterByUserNameBack = async ({userName, accessToken}) => {
     }
 }
 
-export const saleFilterByDateBack = async ({date, accessToken}) => {
+export const saleFilterByDateBack = async (date, accessToken) => {
     try {
         const response = await axios.get(`${ORDER_URL}/sales/date`, {
             headers: {

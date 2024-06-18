@@ -34,7 +34,7 @@ export const createProductBack = async ({name, sku, stock, price, category, desc
     }
 }
 
-export const getAllProductsBack = async ({accessToken}) => {
+export const getAllProductsBack = async (accessToken) => {
     try {
         const response = await axios.get(`${PRODUCT_URL}/product/all`, {
             headers: {
@@ -58,7 +58,7 @@ export const getAllProductsBack = async ({accessToken}) => {
     }
 }
 
-export const getProductByIDBack = async ({id, accessToken}) => {
+export const getProductByIDBack = async (id, accessToken) => {
     try {
         const response = await axios.get(`${PRODUCT_URL}/${id}`, {
             headers: {
@@ -133,10 +133,10 @@ export const getProductByCategoryBack = async ({category, accessToken}) => {
     }
 }
 
-export const updateProductBack = async ({id, product, accessToken}) => {
+export const updateProductBack = async (productId, product, accessToken) => {
     try {
         const response = await axios.post(`${PRODUCT_URL}/product/update`,{
-            id:id,
+            productId:productId,
             product: product
         }, {
             headers: {

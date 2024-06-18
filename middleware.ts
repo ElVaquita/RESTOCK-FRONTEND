@@ -3,7 +3,7 @@ import type { NextRequest } from "next/server";
 import { jwtVerify } from 'jose';
 import Cookies from 'js-cookie';
 
-const secret = new TextEncoder().encode(process.env.JWT_SECRET);
+const secret = new TextEncoder().encode(process.env.NEXT_PUBLIC_JWT_SECRET);
 
 if (!secret) {
   console.error("JWT_SECRET is not defined");
