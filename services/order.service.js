@@ -132,7 +132,7 @@ export const getAllOrdersBack = async () => {
 
 // SALES
 
-export const createSaleBack = async ({userName, tableName, date, tip, totalPrice, products, email}) => {
+export const createSaleBack = async ({userName, tableName, date, tip, totalPrice, products, email,accessToken}) => {
     try {
         const response = await axios.post(`${ORDER_URL}/sales/create`, {
             userName:userName,
@@ -142,6 +142,13 @@ export const createSaleBack = async ({userName, tableName, date, tip, totalPrice
             totalPrice: totalPrice,
             products: products,
             email:email
+        }, {
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE",
+                "Access-Control-Allow-Headers": "Content-Type, Authorization",
+            }
         });
 
         const responseData = response.data;
@@ -157,9 +164,16 @@ export const createSaleBack = async ({userName, tableName, date, tip, totalPrice
     }
 }
 
-export const getAllSalesBack = async () => {
+export const getAllSalesBack = async (accessToken) => {
     try {
-        const response = await axios.get(`${ORDER_URL}/sales/all`);
+        const response = await axios.get(`${ORDER_URL}/sales/all`, {
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE",
+                "Access-Control-Allow-Headers": "Content-Type, Authorization",
+            }
+        });
 
         const responseData = response.data;
 
@@ -174,9 +188,16 @@ export const getAllSalesBack = async () => {
     }
 }
 
-export const saleFilterByUserNameBack = async ({userName}) => {
+export const saleFilterByUserNameBack = async ({userName, accessToken}) => {
     try {
-        const response = await axios.get(`${ORDER_URL}/sales/user`,{
+        const response = await axios.get(`${ORDER_URL}/sales/user`, {
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE",
+                "Access-Control-Allow-Headers": "Content-Type, Authorization",
+            }
+        },{
             params: {user: userName}
         });
 
@@ -193,9 +214,16 @@ export const saleFilterByUserNameBack = async ({userName}) => {
     }
 }
 
-export const saleFilterByDateBack = async ({date}) => {
+export const saleFilterByDateBack = async ({date, accessToken}) => {
     try {
-        const response = await axios.get(`${ORDER_URL}/sales/date`,{
+        const response = await axios.get(`${ORDER_URL}/sales/date`, {
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE",
+                "Access-Control-Allow-Headers": "Content-Type, Authorization",
+            }
+        },{
             params: {date: date}
         });
 
