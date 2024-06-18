@@ -4,7 +4,7 @@ const AUTH_URL = "http://localhost:8000/auth"
 
 export const getUserBack = async (id, accessToken) => {
     try {
-        const response = await axios.post(`${AUTH_URL}/user/${id}`,{
+        const response = await axios.get(`${AUTH_URL}/user/${id}`,{
             headers: {
                 Authorization: `Bearer ${accessToken}`,
                 "Access-Control-Allow-Origin": "*",
@@ -18,11 +18,11 @@ export const getUserBack = async (id, accessToken) => {
         if (responseData.status !== 200 && responseData.status !== 201) {
             throw new Error(`An error has occurred: ${responseData.error.join(', ')}`);
         }
-        console.log("Successful login");
+        console.log("Looking for an user");
         return responseData; 
     } catch (error){
         console.error(error);
-        throw new Error("An error has occurred: Failed to log in");
+        throw new Error("An error has occurred: Failed to found user");
     }
 }
 

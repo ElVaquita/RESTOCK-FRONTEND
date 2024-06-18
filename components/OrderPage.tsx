@@ -26,13 +26,16 @@ const OrderPage: React.FC = () => {
   const [showModal, setShowModal] = useState(false);
   const [email, setEmail] = useState('');
   const [savedEmail, setSavedEmail] = useState('');
-  const [quantityTable, setQuantityTable] = useState<number>();
+  const [quantityTable, setQuantityTable] = useState<number>(0);
   const [showDescription, setShowDescription] = useState<{ visible: boolean; description: string }>({ visible: false, description: '' });
   const [hoveredProductId, setHoveredProductId] = useState<number | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
   const [orderItems, setOrderItems] = useState<OrderItem[]>([]);
   const [order, setOrder] = useState<Order>();
   const [orderID, setOrderID] = useState<number>();
+  const [tip, setTip] = useState<number>(0);
+  const [totalAmount, setTotalAmount] = useState<number>(0);
+  const [finalTotal, setFinalTotal] = useState<number>(0);
   const [orderEditState, setOrderEditState] = useState(false);
   const [ limitStock, setLimitStock ] = useState(false);
   const router = useRouter();
@@ -42,6 +45,7 @@ const OrderPage: React.FC = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
+        console.log("useffect 1 ")
         const accessToken = Cookies.get('accessToken');
         const response = await getAllProductsBack(accessToken);
         setProducts(response.products);
@@ -57,6 +61,7 @@ const OrderPage: React.FC = () => {
             setQuantityTable(responseTable.table.quantity)
             setOrderID(orderId);
             setOrderEditState(true);
+            console.log("useffect 2 ")
           } catch (error) {
             console.error(error);
           }
@@ -67,8 +72,9 @@ const OrderPage: React.FC = () => {
     };
 
     fetchProducts();
-  }, [])
+  }, [name])
 
+  console.log("normal")
   const filteredProducts = products.filter(product =>
     product.name.toLowerCase().includes(searchTerm.toLowerCase()) &&
     (product.category === selectedCategory || selectedCategory === '')
@@ -93,6 +99,7 @@ const OrderPage: React.FC = () => {
       const accessToken = Cookies.get('accessToken');
       await updateProductBack(product.id, product, accessToken);
       setOrderItems([...orderItems, newOrderItem]);
+      getTotalAmount();
     } catch (error) {
         console.error("Failed to update product stock:", error);
         product.stock = originalStock;
@@ -101,6 +108,7 @@ const OrderPage: React.FC = () => {
   };
 
   // REMOVER UN PRODUCTO DE ORDEN, VOLVER A AGREGAR STOCK
+  // REVISAR QUE NO SE ACTUALIZA AL ELIMINAR DIRECTAMENTE
   const removeFromOrder = async (index: number) => {
     const newOrderItems = [...orderItems];
     const removedItem = newOrderItems.splice(index, 1)[0];
@@ -115,6 +123,7 @@ const OrderPage: React.FC = () => {
       try {
         await updateProductBack(product.id, product, accessToken); 
         setOrderItems(newOrderItems);
+        getTotalAmount();
 
       } catch (error) {
         console.error(error);
@@ -151,6 +160,7 @@ const OrderPage: React.FC = () => {
         await updateProductBack(product.id, product, accessToken); 
         item.quantity = quantity;
         setOrderItems(newOrderItems);
+        getTotalAmount();
       }catch (error) {
         console.error(error);
         product.stock = originalStock;
@@ -164,14 +174,20 @@ const OrderPage: React.FC = () => {
     const newOrderItems = [...orderItems];
     newOrderItems[index].modifications = note;
     setOrderItems(newOrderItems);
+    getTotalAmount();
   };
 
-  const totalAmount = orderItems.reduce((total, item) => {
-    item.totalPrice = item.pricePerUnit * item.quantity;
-    return total + item.totalPrice;
-  },0 );
-  const tip = totalAmount * 0.1;
-  const finalTotal = totalAmount + tip;
+  const getTotalAmount = () => {
+    if(orderItems && orderItems.length !== 0) {
+      setTotalAmount(orderItems.reduce((total, item) => {
+        item.totalPrice = item.pricePerUnit * item.quantity;
+        return total + item.totalPrice;
+      },0 ));
+      setTip(totalAmount * 0.1);
+      setFinalTotal(totalAmount + tip)
+    }
+  }; 
+
 
   const handleCategoryClick = (category: string) => {
     setSelectedCategory(prevCategory => prevCategory === category ? '' : category);
@@ -333,7 +349,7 @@ const OrderPage: React.FC = () => {
           </Box>
         ): (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {filteredProducts.map((product) => (
+            {filteredProducts?.map((product) => (
               <Tooltip 
                 title={
                   <React.Fragment>
@@ -374,8 +390,8 @@ const OrderPage: React.FC = () => {
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl">Orden #{name}</h2>
           <button 
-            className={`text-white py-2 px-4 rounded-lg ${orderItems.length > 0 ? 'bg-red-600 hover:bg-red-800' : 'bg-gray-600 cursor-not-allowed'} `}
-            disabled={orderItems.length === 0}
+            className={`text-white py-2 px-4 rounded-lg ${orderItems && orderItems.length > 0 ? 'bg-red-600 hover:bg-red-800' : 'bg-gray-600 cursor-not-allowed'} `}
+            disabled={orderItems && orderItems.length === 0}
             onClick={handlePayment}
           >
             Emitir pago
@@ -383,7 +399,7 @@ const OrderPage: React.FC = () => {
         </div>
         <div className="h-1 bg-red-600 mb-8 mt-9"></div> 
         <ul className="space-y-4">
-          {orderItems.map((item, index) => (
+          {orderItems?.map((item, index) => (
             <li key={index} className="flex flex-col mb-4">
               <h3>{item.productName}</h3>
               <p className="text-gray-400">
@@ -459,8 +475,8 @@ const OrderPage: React.FC = () => {
           </div>
         </div>
         <button
-          className={`mt-8 w-full py-3 rounded-lg ${orderItems.length > 0 ? 'bg-red-600 hover:bg-red-800' : 'bg-gray-600 cursor-not-allowed'}`}
-          disabled={orderItems.length === 0}
+          className={`mt-8 w-full py-3 rounded-lg ${orderItems && orderItems.length > 0 ? 'bg-red-600 hover:bg-red-800' : 'bg-gray-600 cursor-not-allowed'}`}
+          disabled={orderItems && orderItems.length === 0}
           onClick={() => setShowModal(true)}
         >
           Confirmar orden

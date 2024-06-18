@@ -115,7 +115,7 @@ export const updateTableStateBack = async (id, quantity, state, activeOrderId, a
 
 export const createOrderBack = async (products, userId, nameTable, email, accessToken) => {
     try {
-        const response = await axios.post(`${ORDER_URL}`, {
+        const response = await axios.post(`${ORDER_URL}/create`, {
             products: products,
             userId: userId,
             nameTable: nameTable,
