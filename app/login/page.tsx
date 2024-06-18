@@ -119,7 +119,7 @@ const Login = () => {
             {errors.password && <span className="block text-red-500 text-sm">{errors.password}</span>}
           </div>
           <div className="text-sm text-orange mb-4">
-            <a href="#" className="underline">¿Olvidó su correo o contraseña?</a>
+            <a href="/password/recoveryPassword" className="underline">¿Olvidó su contraseña?</a>
           </div>
           <Button
             color="primary"
