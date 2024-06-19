@@ -8,6 +8,8 @@ import { getAllTablesBack } from '../../../services/order.service';
 import SearchOffIcon from '@mui/icons-material/SearchOff';
 import Box from '@mui/material/Box';
 import Cookies from 'js-cookie';
+import { jwtVerify } from 'jose';
+import { getUserBack } from '@/services/auth.service';
 
 
 interface Table {
@@ -21,6 +23,7 @@ const HomeWaiterPage: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [tables, setTables] = useState<Table[]>([]);
   const [loading, setLoading] = useState(true);
+  const [nameUser, setUserName] = useState('');
   
   const fechaChile = new Date().toLocaleDateString('es-CL', { timeZone: 'America/Santiago' });
 
@@ -29,6 +32,20 @@ const HomeWaiterPage: React.FC = () => {
       try {
         const accessToken = Cookies.get('accessToken');
         const response = await getAllTablesBack(accessToken);
+        const secret = new TextEncoder().encode(process.env.NEXT_PUBLIC_JWT_SECRET);
+        if (accessToken) {
+          try {
+            const { payload } = await jwtVerify(accessToken, secret);
+            if (payload && typeof payload.id === 'number') {
+              const userId = payload.id;
+              const responseUser = await getUserBack(userId, accessToken);
+              const userName = responseUser.user.name;
+              setUserName(userName);
+            }
+          } catch (error) {
+            console.error(error);
+          }
+        }
         setTables(response.tables);
         setLoading(false);
       } catch (error) {
@@ -48,7 +65,8 @@ const HomeWaiterPage: React.FC = () => {
       <SidebarWaiter />
       <div className="p-8 bg-gray-800 min-h-screen text-white flex-1">
         <div className='flex justify-between items-center mb-4'>
-          <h1 className="text-2xl">Mesas Disponibles</h1>
+          <h1 className="text-2xl">Bienvenido, {nameUser}</h1>
+          <h2 className="text-2xl">Mesas Disponibles</h2>
           <div className="flex items-center">
             <SearchIcon className='text-white mr-2' />
             <input

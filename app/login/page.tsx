@@ -28,6 +28,13 @@ const Login = () => {
     }
   }, []);
 
+  useEffect(() => {
+    setTimeout(() => {
+      setReLoginAlert(false);  
+    }, 10000);  
+
+  }, [reLoginAlert]);
+
   const handleLogin = async () => {
     try {
       await validationSchema.validate({ email, password }, { abortEarly: false });
@@ -95,7 +102,6 @@ const Login = () => {
           </div>
           <div className="mb-4">
             <Input
-              isRequired
               labelPlacement='outside'
               variant="bordered"
               label={<span className="input-label">Ingrese su contraseña</span>}

@@ -34,8 +34,8 @@ export const registerSchema = Yup.object().shape({
         .min(3, 'Minimo de 3 caracteres')
         .required('Este campo es obligatorio'),
     rut: Yup.string()
-        .required('Este campo es obligatorio')
-        .test('is-valid-rut', 'RUT inválido', value => value ? validateRUT(value) : false),
+        .test('is-valid-rut', 'RUT inválido', value => value ? validateRUT(value) : false)
+        .required('Este campo es obligatorio'),
     email: Yup.string()
         .email('Por favor, ingrese un email valido')
         .required("Este campo es obligatorio"),

@@ -19,6 +19,8 @@ import { Order, OrderItem, Product } from "@/types/Products";
 import { jwtVerify } from "jose";
 import { Alert } from '@mui/material';
 import { getUserBack } from "@/services/auth.service";
+import * as Yup from 'yup';
+import { orderSchema } from '../validation/order-schema';
 
 const OrderPage: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -38,14 +40,17 @@ const OrderPage: React.FC = () => {
   const [finalTotal, setFinalTotal] = useState<number>(0);
   const [orderEditState, setOrderEditState] = useState(false);
   const [ limitStock, setLimitStock ] = useState(false);
+  const validationSchema = orderSchema;
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const router = useRouter();
   const params = useParams();
   const name = params.name; 
+  const [IsLoadingPurchase, setIsLoadingPurchase] = useState(false);
+  const [errorOnPurchase, setErrorOnPurchase] = useState(false);
 
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        console.log("useffect 1 ")
         const accessToken = Cookies.get('accessToken');
         const response = await getAllProductsBack(accessToken);
         setProducts(response.products);
@@ -55,13 +60,17 @@ const OrderPage: React.FC = () => {
           try {
             const orderId = responseTable.table.activeOrderId;
             const responseOrder = await getOrderByIdBack(orderId, accessToken);
-            setOrder(responseOrder.order);
-            setOrderItems(responseOrder.order.orderItems);
+            setTotalAmount(responseOrder.order.totalPrice);
+            setTip(responseOrder.order.totalPrice * 0.1);
+
+            const total = responseOrder.order.totalPrice + responseOrder.order.totalPrice * 0.1;
+            setFinalTotal(total);
+
+            setOrderItems(responseOrder.order.items);
             setEmail(responseOrder.order.email);
             setQuantityTable(responseTable.table.quantity)
             setOrderID(orderId);
             setOrderEditState(true);
-            console.log("useffect 2 ")
           } catch (error) {
             console.error(error);
           }
@@ -74,124 +83,157 @@ const OrderPage: React.FC = () => {
     fetchProducts();
   }, [name])
 
-  console.log("normal")
-  const filteredProducts = products.filter(product =>
-    product.name.toLowerCase().includes(searchTerm.toLowerCase()) &&
-    (product.category === selectedCategory || selectedCategory === '')
-  );
+  useEffect(() => {
+    updateProductStockInFrontend();
+    getTotalAmount();
+  }, [orderItems]);
+
+  useEffect(() => {
+    setTimeout(() => {
+      setLimitStock(false); 
+      setErrorOnPurchase(false); 
+    }, 10000);  
+
+  }, [limitStock]);
+
+  const updateProductStockInFrontend = async () => {
+    const updatedProducts = [...products];
+    setProducts(updatedProducts);
+  };
+
+  // CALCULOS DE LA ORDEN
+  const getTotalAmount = () => {
+    if(orderItems && orderItems.length !== 0) {
+      const totalAmountCalculation = orderItems.reduce((total, item) => {
+        item.totalPrice = item.pricePerUnit * item.quantity;
+        return total + item.totalPrice;
+      }, 0);
+  
+      setTotalAmount(totalAmountCalculation);
+      setTip(totalAmountCalculation * 0.1); 
+      setFinalTotal(totalAmountCalculation + (totalAmountCalculation * 0.1)); 
+    }
+    else {
+      setTotalAmount(0);
+      setTip(0); 
+      setFinalTotal(0); 
+    } 
+  };
+
 
   // AGREGAR PRODUCTO A NUEVA ORDEN, DISMINUIR 1 DE STOCK
-  const addToOrder = async (product: Product) => {
+  const addToOrder = (product: Product) => {
 
-    if( product.stock <= 0) return;
+    if( product.stock === 0){
+      setLimitStock(true);
+      return;
+    } 
 
-    const newOrderItem: OrderItem = {
-      productId: product.id,
-      quantity: 1,
-      modifications: "",
-      productName: product.name,
-      pricePerUnit: product.price,
-      totalPrice: product.price,
-    };
-    const originalStock = product.stock;
-    product.stock = product.stock - 1;
-    try {
-      const accessToken = Cookies.get('accessToken');
-      await updateProductBack(product.id, product, accessToken);
+    const existingItemIndex = orderItems.findIndex(item => item.productId === product.id);
+    const existingItem = orderItems[existingItemIndex];
+
+    const newProducts = [...products];
+
+    const productIndex = newProducts.findIndex(p => p.id === product.id);
+    if (productIndex !== -1) {
+      newProducts[productIndex].stock -= 1;
+    }
+
+    if (existingItem) {
+      const newOrderItems = [...orderItems];
+      newOrderItems[existingItemIndex].quantity += 1;
+      setOrderItems(newOrderItems);
+    } else {
+      const newOrderItem: OrderItem = {
+        productId: product.id,
+        quantity: 1,
+        modifications: "",
+        productName: product.name,
+        pricePerUnit: product.price,
+        totalPrice: product.price,
+      };
       setOrderItems([...orderItems, newOrderItem]);
-      getTotalAmount();
-    } catch (error) {
-        console.error("Failed to update product stock:", error);
-        product.stock = originalStock;
-        throw new Error("Failed to add product to order");
+    }
+    setProducts(newProducts);
+  };
+
+  // AGREGAR O QUITAR CANTIDAD DE PRODUCTO Y CAMBIAR STOCK EN INVENTARIO
+  const updateQuantity = (index: number, quantity: number) => {
+
+    const newOrderItems = [...orderItems];
+    const itemOrder = newOrderItems[index];
+
+    const newProductsItems = [...products];
+    const itemProduct = products.find(product => product.id === itemOrder.productId);
+
+    if ( itemProduct && (quantity > itemProduct.stock) || quantity < 0) {
+      setLimitStock(true);
+      return;
+    }
+
+    const difference = quantity - itemOrder.quantity;
+    if (itemProduct && itemProduct.stock >= difference) {
+      const productIndex = newProductsItems.findIndex(p => p.id === itemOrder.productId);
+      if (productIndex !== -1) {
+        newProductsItems[productIndex].stock -= difference;
+      }
+      itemOrder.quantity = quantity;
+      setOrderItems(newOrderItems);
+      setProducts(newProductsItems);
+    }
+    else {
+      setLimitStock(true);
+      return;
     }
   };
 
   // REMOVER UN PRODUCTO DE ORDEN, VOLVER A AGREGAR STOCK
-  // REVISAR QUE NO SE ACTUALIZA AL ELIMINAR DIRECTAMENTE
-  const removeFromOrder = async (index: number) => {
+  const removeFromOrder = (index: number) => {
     const newOrderItems = [...orderItems];
     const removedItem = newOrderItems.splice(index, 1)[0];
-    try {
-      const accessToken = Cookies.get('accessToken');
-      const productResponse = await getProductByIDBack(removedItem.productId, accessToken);
-      const product = productResponse.data;
 
-      const originalStock = product.stock;
-      product.stock = product.stock + removedItem.quantity;
-
-      try {
-        await updateProductBack(product.id, product, accessToken); 
-        setOrderItems(newOrderItems);
-        getTotalAmount();
-
-      } catch (error) {
-        console.error(error);
-        product.stock = originalStock;
-        newOrderItems.splice(index,0,removedItem);
-        setOrderItems(newOrderItems);
-      }
-
-    } catch (error) {
-      console.error(error);
+    const newProducts = [...products];
+    const productIndex = newProducts.findIndex(p => p.id === removedItem.productId);
+    if (productIndex !== -1) {
+      newProducts[productIndex].stock += removedItem.quantity;
     }
+
+    setOrderItems(newOrderItems);
+    setProducts(newProducts);
   };
 
-  // AGREGAR CANTIDAD DE PRODUCTO Y DISMINUIR STOCK EN INVENTARIO
-  const updateQuantity = async (index: number, quantity: number) => {
-    const newOrderItems = [...orderItems];
-    const item = newOrderItems[index];
-    const difference = quantity - item.quantity;
 
-    try {
-      const accessToken = Cookies.get('accessToken');
-      const productResponse = await getProductByIDBack(item.productId, accessToken);
-      const product = productResponse.data;
 
-      if (quantity > (item.quantity + product.stock)) {
-        console.error("Stock exceded")
-        setLimitStock(true);
-      }
-
-      const originalStock = product.stock;
-      product.stock = product.stock - difference;
-
-      try{
-        await updateProductBack(product.id, product, accessToken); 
-        item.quantity = quantity;
-        setOrderItems(newOrderItems);
-        getTotalAmount();
-      }catch (error) {
-        console.error(error);
-        product.stock = originalStock;
-      }
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
+  // AGREGAR NOTA AL ORDERITEM
   const updateNote = (index: number, note: string) => {
     const newOrderItems = [...orderItems];
     newOrderItems[index].modifications = note;
     setOrderItems(newOrderItems);
-    getTotalAmount();
   };
-
-  const getTotalAmount = () => {
-    if(orderItems && orderItems.length !== 0) {
-      setTotalAmount(orderItems.reduce((total, item) => {
-        item.totalPrice = item.pricePerUnit * item.quantity;
-        return total + item.totalPrice;
-      },0 ));
-      setTip(totalAmount * 0.1);
-      setFinalTotal(totalAmount + tip)
-    }
-  }; 
-
 
   const handleCategoryClick = (category: string) => {
     setSelectedCategory(prevCategory => prevCategory === category ? '' : category);
   };
+
+  const handleConfirm = async () => {
+    try {
+      await validationSchema.validate({ quantityTable, email }, { abortEarly: false });
+      setShowModal(true);
+    } catch (error) {
+      if (error instanceof Yup.ValidationError) {
+        const validationErrors: { [key: string]: string } = {};
+        error.inner.forEach(err => {
+          if (err.path) {
+            validationErrors[err.path] = err.message;
+          }
+        });
+        setErrors(validationErrors);
+      }  else {
+        console.error(error);
+      }
+    }
+
+  }
 
   const handleAccept = async () => {
     const accessToken = Cookies.get('accessToken');
@@ -212,28 +254,43 @@ const OrderPage: React.FC = () => {
               table.state = "Ocupada";
               table.activeOrderId = responseEditedOrder.id; 
 
+              await updateTableStateBack(table.id, table.quantity, table.state, table.activeOrderId, accessToken);
+
+              for (const product of products) {
+                await updateProductBack(product.id, product, accessToken);
+              }
+
               setShowModal(false);
               setOrderEditState(false);
               router.push('/user/home-waiter');
+              setErrors({});
             } catch (error) {
               console.error(error);
             }
           }
-          try {
-            const responseOrder = await createOrderBack(orderItems, userId, tableName, email, accessToken);
-            const responseTable = await getTableByNameBack(tableName, accessToken);
+          else {
+            try {
+              const responseOrder = await createOrderBack(orderItems, userId, tableName, email, accessToken);
+              const responseTable = await getTableByNameBack(tableName, accessToken);
 
-            const table = responseTable.table;
-            table.quantity = quantityTable;
-            table.state = "Ocupada";
-            table.activeOrderId = responseOrder.id; 
+              const table = responseTable.table;
+              table.quantity = quantityTable;
+              table.state = "Ocupada";
+              table.activeOrderId = responseOrder.id; 
 
-            await updateTableStateBack(table.id, table.quantity, table.state, table.activeOrderId, accessToken);
-            setShowModal(false);
-            router.push('/user/home-waiter');
-          }catch (error) {
-            console.error(error);
-          }
+              await updateTableStateBack(table.id, table.quantity, table.state, table.activeOrderId, accessToken);
+
+              for (const product of products) {
+                await updateProductBack(product.id, product, accessToken);
+              }
+
+              setShowModal(false);
+              router.push('/user/home-waiter');
+              setErrors({});
+            }catch (error) {
+              console.error(error);
+            }
+          }  
         }
       } catch (error) {
         console.error(error);
@@ -249,11 +306,15 @@ const OrderPage: React.FC = () => {
     setShowDescription({ visible: false, description: '' });
   };
 
+
+  // PAGO Y ENVIO DE COMPROBANTE
   const handlePayment = async () => {
     const accessToken = Cookies.get('accessToken');
     const secret = new TextEncoder().encode(process.env.NEXT_PUBLIC_JWT_SECRET);
     if (accessToken) {
       try {
+        await validationSchema.validate({ quantityTable, email }, { abortEarly: false });
+        setIsLoadingPurchase(true);
         const { payload } = await jwtVerify(accessToken, secret);
         if (payload && typeof payload.id === 'number') {
           const userId = payload.id;
@@ -274,10 +335,25 @@ const OrderPage: React.FC = () => {
           await updateTableStateBack(table.id, table.quantity, table.state, table.activeOrderId, accessToken);
           setShowModal(false);
           setOrderEditState(false);
-          router.push('/user/home-waiter');        
+          setTimeout(() => {
+            router.push('/user/home-waiter');    
+            setIsLoadingPurchase(false);
+          }, 4000);    
         }
       } catch (error) {
-        console.error(error);
+        if (error instanceof Yup.ValidationError) {
+          const validationErrors: { [key: string]: string } = {};
+          error.inner.forEach(err => {
+            if (err.path) {
+              validationErrors[err.path] = err.message;
+            }
+          });
+          setErrors(validationErrors);
+        }  else {
+          console.error(error);
+          setErrorOnPurchase(true);
+          setIsLoadingPurchase(false);
+        }
       }  
     }  
   }
@@ -288,6 +364,22 @@ const OrderPage: React.FC = () => {
 
   const handleAlertClose = () => {
     setLimitStock(false);
+    setIsLoadingPurchase(false);
+  };
+
+  // FILTRO POR CATEGORIA
+  const filteredProducts = products.filter(product =>
+    product.name.toLowerCase().includes(searchTerm.toLowerCase()) &&
+    (product.category === selectedCategory || selectedCategory === '')
+  );
+
+  // LIMPIAR ERRORES AL COLOCAR EL MOUSE 
+  const clearError = (field: string) => {
+    setErrors((prevErrors) => {
+      const newErrors = { ...prevErrors };
+      delete newErrors[field];
+      return newErrors;
+    });
   };
 
   return (
@@ -295,7 +387,9 @@ const OrderPage: React.FC = () => {
       <SidebarWaiter /> 
       <div className="w-2/3 p-8">
         <div className="flex items-center mb-0">
-          <h1 className="text-2xl mb-9">Mesa {name}</h1>
+          <h1 className="text-2xl mb-9">
+            {orderEditState ? `Mesa ${name} - Editando orden` : `Mesa ${name} - Creando orden`}
+          </h1>
           <div className="ml-auto mb-9">
             <Search className="text-white mr-2" />
             <input
@@ -425,7 +519,10 @@ const OrderPage: React.FC = () => {
                   }}
                   max={item.quantity + (products.find(p => p.id === item.productId)?.stock || 0)}
                 />
-                <button onClick={() => removeFromOrder(index)} className="text-red-500">
+                <button 
+                  onClick={() => removeFromOrder(index)} 
+                  className="text-red-500"
+                >
                   <DeleteIcon />
                 </button>
               </div>
@@ -452,6 +549,9 @@ const OrderPage: React.FC = () => {
               className="p-2 bg-gray-800 rounded-lg flex-grow w-16"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              onFocus={() => {
+                clearError('email');
+              }}
             />
             <IconButton              
               onClick={handleSaveEmail}
@@ -459,25 +559,33 @@ const OrderPage: React.FC = () => {
               <SaveIcon sx= {{ color: "white" }}/>
             </IconButton>
           </div>
+          {errors.email && <span className="block text-red-500 text-sm">{errors.email}</span>}
           {savedEmail && (
             <p className="mt-4 text-green-500">
               Correo {savedEmail} guardado con exito
             </p>
           )}
           <div className="flex mt-4 ">
+            <p className="flex-grow mt-4">
+              Cantidad de personas (max. 6)
+            </p>
             <input
               type= "number"
-              placeholder="Cantidad de personas"
+              placeholder="0"
               className="p-2 bg-gray-800 rounded-lg flex-grow w-16"
               value={quantityTable}
               onChange={(e) => setQuantityTable(parseInt(e.target.value))}
+              onFocus={() => {
+                clearError('quantityTable');
+              }}
             />
           </div>
+          {errors.quantityTable && <span className="block text-red-500 text-sm">{errors.quantityTable}</span>}
         </div>
         <button
           className={`mt-8 w-full py-3 rounded-lg ${orderItems && orderItems.length > 0 ? 'bg-red-600 hover:bg-red-800' : 'bg-gray-600 cursor-not-allowed'}`}
           disabled={orderItems && orderItems.length === 0}
-          onClick={() => setShowModal(true)}
+          onClick={handleConfirm}
         >
           Confirmar orden
         </button>
@@ -500,7 +608,21 @@ const OrderPage: React.FC = () => {
       {limitStock && (
         <div className="absolute top-0 left-0 w-full z-50">
           <Alert severity="error" onClose={handleAlertClose} sx={{ textAlign: 'center' }}>
-            No hay mas stock disponible para ese producto
+            No puede realizar esa accion
+          </Alert>
+        </div>
+      )}
+      {IsLoadingPurchase && (
+        <div className="absolute top-0 left-0 w-full z-50">
+          <Alert severity="success" onClose={handleAlertClose} sx={{ textAlign: 'center' }}>
+            Se esta enviando el comprobante a {email}
+          </Alert>
+        </div>
+      )}
+      {errorOnPurchase && (
+        <div className="absolute top-0 left-0 w-full z-50">
+          <Alert severity="error" onClose={handleAlertClose} sx={{ textAlign: 'center' }}>
+            Ocurrio un error al intentar enviar el comprobante
           </Alert>
         </div>
       )}

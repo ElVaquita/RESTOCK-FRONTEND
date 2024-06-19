@@ -63,7 +63,6 @@ export default function Register() {
           
           <div className="mb-4">
             <Input
-              isRequired
               labelPlacement="outside"
               variant="bordered"
               label={<span className="input-label">Nombre</span>}
@@ -80,7 +79,6 @@ export default function Register() {
           </div>
           <div className="mb-4">
             <Input
-              isRequired
               labelPlacement="outside"
               variant="bordered"
               label={<span className="input-label">Rut</span>}
@@ -97,7 +95,6 @@ export default function Register() {
           </div>
           <div className="mb-4">
             <Input
-              isRequired
               labelPlacement="outside"
               variant="bordered"
               label={<span className="input-label">Correo</span>}
@@ -114,7 +111,6 @@ export default function Register() {
           </div>
           <div className="mb-4">
             <Input
-              isRequired
               labelPlacement="outside"
               variant="bordered"
               label={<span className="input-label">Contraseña</span>}

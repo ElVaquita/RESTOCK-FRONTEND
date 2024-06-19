@@ -186,7 +186,7 @@ export const getAllOrdersBack = async () => {
 
 export const updateOrderBack = async (orderId, products, userId, nameTable, email,accessToken) => {
     try {
-        const response = await axios.post(`${ORDER_URL}/update/${orderId}`, {
+        const response = await axios.patch(`${ORDER_URL}/update/${orderId}`, {
             products:products,
             userId: userId,
             nameTable: nameTable,
