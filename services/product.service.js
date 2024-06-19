@@ -3,7 +3,7 @@ import axios from "axios";
 const PRODUCT_URL = "http://localhost:8000/products"
 
 
-export const createProductBack = async ({name, sku, stock, price, category, description, accessToken}) => {
+export const createProductBack = async (name, sku, stock, price, category, description, accessToken) => {
     try {
         const response = await axios.post(`${PRODUCT_URL}`,{
             name: name,
@@ -82,7 +82,7 @@ export const getProductByIDBack = async (id, accessToken) => {
     }
 }
 
-export const getProductByNameBack = async ({name, accessToken}) => {
+export const getProductByNameBack = async (name, accessToken) => {
     try {
         const response = await axios.get(`${PRODUCT_URL}/product/name`, {
             headers: {
@@ -108,7 +108,7 @@ export const getProductByNameBack = async ({name, accessToken}) => {
 }
 
 
-export const getProductByCategoryBack = async ({category, accessToken}) => {
+export const getProductByCategoryBack = async (category, accessToken) => {
     try {
         const response = await axios.get(`${PRODUCT_URL}/product/category`, {
             headers: {
@@ -160,7 +160,7 @@ export const updateProductBack = async (productId, product, accessToken) => {
     }
 }
 
-export const deleteProductBack = async ({id,accessToken}) => {
+export const deleteProductBack = async (id,accessToken) => {
     try {
         const response = await axios.delete(`${PRODUCT_URL}/delete/${id}`, {
             headers: {

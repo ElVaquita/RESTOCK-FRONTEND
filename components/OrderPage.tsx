@@ -53,7 +53,9 @@ const OrderPage: React.FC = () => {
       try {
         const accessToken = Cookies.get('accessToken');
         const response = await getAllProductsBack(accessToken);
-        setProducts(response.products);
+        if(response.products){
+          setProducts(response.products);
+        }
         const tableName = `Mesa ${name}`
         const responseTable = await getTableByNameBack(tableName, accessToken);
         if (responseTable.table.state === "Ocupada") {

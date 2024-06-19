@@ -9,6 +9,7 @@ import Cookies from 'js-cookie';
 import * as Yup from 'yup';
 import { loginSchema } from '../../validation/login-schema';
 import { Alert } from '@mui/material';
+import { jwtVerify } from 'jose';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -22,10 +23,31 @@ const Login = () => {
   const toggleVisibility = () => setIsVisible(!isVisible);
 
   useEffect(() => {
-    const accessToken = Cookies.get('accessToken');
-    if(!accessToken || accessToken === undefined) {
-      setReLoginAlert(true);
-    }
+    const checkAccessToken = async () => {
+      try {
+        const accessToken = Cookies.get('accessToken');
+        if (!accessToken || accessToken === undefined) {
+          setReLoginAlert(true);
+          return;
+        }
+
+        const secret = new TextEncoder().encode(process.env.NEXT_PUBLIC_JWT_SECRET);
+        const { payload } = await jwtVerify(accessToken,secret);
+        if (payload && payload.exp) {
+          const expTimestamp = payload.exp * 1000; // Expresado en milisegundos
+          const currentTimestamp = Date.now();
+          if (currentTimestamp >= expTimestamp) {
+            setReLoginAlert(true);
+          }
+        }
+
+      } catch (error) {
+        console.error('Error al verificar el token de acceso:', error);
+        setReLoginAlert(true); // Tratar errores como expiración del token
+      }
+    };
+
+    checkAccessToken();
   }, []);
 
   useEffect(() => {
@@ -39,10 +61,26 @@ const Login = () => {
     try {
       await validationSchema.validate({ email, password }, { abortEarly: false });
       const login = await loginBack({ email, password });
-      Cookies.set('accessToken', login.token); // 1 hora
-      router.push('/user/home-waiter');
-      setErrors({});
-      setGeneralError('');
+      if(login.token) {
+        Cookies.set('accessToken', login.token); // 1 hora
+        const secret = new TextEncoder().encode(process.env.NEXT_PUBLIC_JWT_SECRET);
+
+        const { payload } = await jwtVerify(login.token, secret);
+        if (payload && typeof payload.role === 'string') {
+          const roleUser = payload.role;
+
+          if (roleUser === 'mesero') {
+            router.push('/user/home-waiter');
+            setErrors({});
+            setGeneralError('');
+          }
+          else {
+            router.push('/admin/home');
+            setErrors({});
+            setGeneralError('');
+          }
+        }
+      }
     } catch (error) {
       if (error instanceof Yup.ValidationError) {
         const validationErrors: { [key: string]: string } = {};

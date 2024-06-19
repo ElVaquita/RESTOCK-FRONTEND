@@ -46,7 +46,9 @@ const HomeWaiterPage: React.FC = () => {
             console.error(error);
           }
         }
-        setTables(response.tables);
+        if(response.table){
+          setTables(response.tables);
+        }
         setLoading(false);
       } catch (error) {
         console.error(error);
