@@ -140,6 +140,16 @@ import Box from '@mui/material/Box';
     const handleCategoryClick = (category: string) => {
       setSelectedCategory(prevCategory => prevCategory === category ? '' : category);
     };
+
+    // GENERAR SKU ALEATORIO
+    const generateNumericSKU = (num: number) => {
+      let sku = '';
+      const characters = '0123456789';
+      for (let i = 0; i < num; i++) {
+        sku += characters.charAt(Math.floor(Math.random() * characters.length));
+      }
+      return sku;
+    };
   
     // ABRIR MODAL PARA AGREGAR PRODUCTO NUEVO
     const openCreateModal = () => {
@@ -150,7 +160,7 @@ import Box from '@mui/material/Box';
     const handleCreateProduct = async () => {
       try{
         const accessToken = Cookies.get('accessToken');
-        const sku = 0;
+        const sku = generateNumericSKU(12);
         await validationSchema.validate({name ,stock, price, category, description}, { abortEarly: false});
         await createProductBack(name, sku ,stock, price, category, description, accessToken);
         fetchProducts();

@@ -67,6 +67,13 @@ export async function middleware(request: NextRequest) {
       );
     }
 
+    if (path.startsWith("/user") && role === "admin") {
+      console.log("Admin trying to access user page, redirecting to login");
+      return NextResponse.redirect(
+        new URL('/', request.url)
+      );
+    }
+
     if (path.startsWith("/admin") && role === "mesero") {
       console.log("User trying to access admin page, redirecting to login");
       return NextResponse.redirect(
