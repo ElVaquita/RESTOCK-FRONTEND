@@ -46,7 +46,7 @@ const HomeWaiterPage: React.FC = () => {
             console.error(error);
           }
         }
-        if(response.table){
+        if(response.tables){
           setTables(response.tables);
         }
         setLoading(false);
@@ -80,6 +80,7 @@ const HomeWaiterPage: React.FC = () => {
             />
           </div>
         </div>
+        <div className="h-1 bg-red-600 mb-4"></div>
         <p className="text-xl mb-8">{fechaChile}</p>
         {(filteredTables.length === 0 || tables.length === 0 )? (
           <Box display="flex" flexDirection="column" alignItems="center" justifyContent="center" minHeight="60vh">

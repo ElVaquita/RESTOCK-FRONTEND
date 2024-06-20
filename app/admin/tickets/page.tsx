@@ -253,9 +253,9 @@ const SalesManagement: React.FC = () => {
               </div>
               <button
                 onClick={() => handleViewDetails(sale)}
-                className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg"
+                className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg"
               >
-                Ver Detalles
+                Ver detalles
               </button>
             </div>
           ))}
