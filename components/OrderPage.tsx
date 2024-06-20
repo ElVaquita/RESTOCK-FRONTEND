@@ -462,7 +462,7 @@ const OrderPage: React.FC = () => {
                   onMouseLeave={handleMouseLeave}
                 >
                   <Image
-                    src={product.image || ""}
+                    src={"/images/logo.png" || ""}
                     alt={product.name}
                     width={200}
                     height={150}

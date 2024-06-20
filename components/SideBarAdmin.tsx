@@ -1,7 +1,6 @@
 "use client";
 
 import React from 'react';
-import HomeIcon from '@mui/icons-material/Home';
 import LogoutIcon from '@mui/icons-material/Logout';
 import InventoryIcon from '@mui/icons-material/Inventory';
 import AppRegistrationIcon from '@mui/icons-material/AppRegistration';

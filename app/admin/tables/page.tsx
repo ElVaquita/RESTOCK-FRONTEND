@@ -11,6 +11,8 @@ import Cookies from 'js-cookie';
 import { jwtVerify } from 'jose';
 import { getUserBack } from '@/services/auth.service';
 import Alert from '@mui/material/Alert';
+import {createTableSchema} from '../../../validation/create_table-schema';
+import * as Yup from 'yup';
 
 interface Table {
   id: number;
@@ -27,10 +29,11 @@ const TablesAdmin: React.FC = () => {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [name, setName] = useState('');
   const [quantity, setQuantity] = useState(0);
-  const [state, setState] = useState('available');
+  const [state, setState] = useState('Disponible');
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [generalError, setGeneralError] = useState<string>('');
   const [tableCreated, setTableCreated] = useState(false);
+  const validationSchema = createTableSchema;
 
   const fechaChile = new Date().toLocaleDateString('es-CL', { timeZone: 'America/Santiago' });
   const fetchTables = async () => {
@@ -82,6 +85,7 @@ const TablesAdmin: React.FC = () => {
   const handleCreateTable = async () => {
     try {
       const accessToken = Cookies.get('accessToken');
+      await validationSchema.validate({name,quantity,state}, {abortEarly: false})
       await createTableBack(name, quantity, state, accessToken);
       setTableCreated(true);
       closeCreateModal();
@@ -89,8 +93,19 @@ const TablesAdmin: React.FC = () => {
       fetchTables();
       setTimeout(() => setTableCreated(false), 5000);
     } catch (error) {
-      setGeneralError('Error al crear la mesa, por favor intente de nuevo');
-      console.error(error);
+      if (error instanceof Yup.ValidationError) {
+        const validationErrors: { [key: string]: string } = {};
+        error.inner.forEach(err => {
+          if (err.path) {
+            validationErrors[err.path] = err.message;
+          }
+        });
+        setErrors(validationErrors);
+      } else {
+        console.error(error);
+        fetchTables();
+        setGeneralError('Error al crear la mesa, por favor intente de nuevo');
+      }
     }
   };
 
@@ -154,18 +169,24 @@ const TablesAdmin: React.FC = () => {
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  onFocus={() => clearError('name')}
+                  onFocus={() => {
+                    clearError('name');
+                    setGeneralError('');
+                  }}
                   className="w-full p-2 rounded-lg bg-gray-700"
                 />
                 {errors.name && <span className="block text-red-500 text-sm">{errors.name}</span>}
               </div>
               <div className="form-group mt-4">
-                <label htmlFor="quantity" className="block text-white">Capacidad</label>
+                <label htmlFor="quantity" className="block text-white">Capacidad (max. 6)</label>
                 <input
                   type="number"
                   value={quantity}
                   onChange={(e) => setQuantity(parseInt(e.target.value))}
-                  onFocus={() => clearError('quantity')}
+                  onFocus={() => {
+                    clearError('quantity');
+                    setGeneralError('');
+                  }}
                   className="w-full p-2 rounded-lg bg-gray-700 text-white"
                 />
                 {errors.quantity && <span className="block text-red-500 text-sm">{errors.quantity}</span>}
@@ -175,7 +196,10 @@ const TablesAdmin: React.FC = () => {
                 <select
                   value={state}
                   onChange={(e) => setState(e.target.value)}
-                  onFocus={() => clearError('state')}
+                  onFocus={() => {
+                    clearError('state');
+                    setGeneralError('');
+                  }}
                   className="w-full p-2 rounded-lg bg-gray-700 text-white"
                 >
                   <option value="Disponible">Disponible</option>

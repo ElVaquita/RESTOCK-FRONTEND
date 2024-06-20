@@ -65,7 +65,7 @@ const SalesManagement: React.FC = () => {
         <h1 className="text-3xl font-bold mb-8">Gestión de Ventas</h1>
         <div className="h-1 bg-red-600 mb-4"></div>
         <div className="mb-6 flex items-center space-x-4">
-          <SearchIcon className='text-white mr-2' />
+          <SearchIcon className='text-white' />
           <input
             type = "text"
             placeholder="Buscar por garzón..."
@@ -95,14 +95,14 @@ const SalesManagement: React.FC = () => {
                     <p><span className="font-semibold">Garzón:</span> {sale.userName}</p>
                     <p><span className="font-semibold">Mesa:</span> {sale.tableName}</p>
                     <p><span className="font-semibold">Fecha:</span> {sale.date}</p>
-                    <p><span className="font-semibold">Propina:</span> ${sale.tip}</p>
-                    <p><span className="font-semibold">Total:</span> ${sale.totalPrice}</p>
+                    <p><span className="font-semibold">Propina:</span> ${sale.tip.toLocaleString("es-CL")}</p>
+                    <p><span className="font-semibold">Total:</span> ${sale.totalPrice.toLocaleString("es-CL")}</p>
                   </div>
                   <button
                     onClick={() => handleViewDetails(sale)}
-                    className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg"
+                    className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg"
                   >
-                    Ver Detalles
+                    Ver detalles
                   </button>
                 </div>
               ))}
@@ -122,8 +122,8 @@ const SalesManagement: React.FC = () => {
             <p><span className="font-semibold">Garzón:</span> {selectedSale.userName}</p>
             <p><span className="font-semibold">Mesa:</span> {selectedSale.tableName}</p>
             <p><span className="font-semibold">Fecha:</span> {selectedSale.date}</p>
-            <p><span className="font-semibold">Propina:</span> ${selectedSale.tip}</p>
-            <p><span className="font-semibold">Total:</span> ${selectedSale.totalPrice}</p>
+            <p><span className="font-semibold">Propina:</span> ${selectedSale.tip.toLocaleString("es-CL")}</p>
+            <p><span className="font-semibold">Total:</span> ${selectedSale.totalPrice.toLocaleString("es-CL")}</p>
             <div className="mt-4">
               <h4 className="font-semibold mb-2">Productos:</h4>
               <ul className="list-disc list-inside">
@@ -131,8 +131,8 @@ const SalesManagement: React.FC = () => {
                   <li key={product.productId} className="mb-2">
                     <p>{product.productName} (x{product.quantity})</p>
                     <p>Modificaciones: {product.modifications}</p>
-                    <p>Precio Unitario: ${product.pricePerUnit}</p>
-                    <p>Precio Total: ${product.totalPrice}</p>
+                    <p>Precio Unitario: ${product.pricePerUnit.toLocaleString("es-CL")}</p>
+                    <p>Precio Total: ${product.totalPrice.toLocaleString("es-CL")}</p>
                   </li>
                 ))}
               </ul>

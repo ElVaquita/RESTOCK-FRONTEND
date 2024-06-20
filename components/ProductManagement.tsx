@@ -212,14 +212,14 @@ import Box from '@mui/material/Box';
         setStockChanged(false);
         setProductDeleted(false); 
       }, 5000); 
-    }, [productCreated, stockChanged, setProductDeleted]);   
+    }, [productCreated, stockChanged, productDeleted]);   
   
     return (
       <div className="flex bg-gray-800 text-white">
         <SidebarAdmin />
         <div className="w-full p-8">
           <div className='flex justify-between items-center mb-4'>
-            <h1 className="text-2xl mb-9">Productos {name}</h1>
+            <h1 className="text-2xl mb-9">Productos {nameTable}</h1>
             <div className="ml-auto mb-9 flex items-center">
               <Search className="text-white mr-2" />
               <input
@@ -271,7 +271,11 @@ import Box from '@mui/material/Box';
                     arrow key={product.id}
                   >
                     <div key={product.id} className="bg-gray-700 p-4 rounded-lg">
-                      <img src={product.image || ""} alt={product.name} className="w-full h-48 object-cover rounded-lg mb-4" />
+                      <img 
+                        src={ "/images/logo.png" || ""} 
+                        alt={product.name} 
+                        className="w-full h-48 object-cover rounded-lg mb-4" 
+                      />
                       <h3 className="text-lg">{product.name}</h3>
                       <p>Precio: ${product.price}</p>
                       <p>Stock: {product.stock}</p>
@@ -473,7 +477,7 @@ import Box from '@mui/material/Box';
         {stockChanged && (
           <div className="absolute top-0 left-0 w-full z-50">
             <Alert severity="info" onClose={handleAlertClose} sx={{ textAlign: 'center' }}>
-              Se ha reducido el stock de {name}
+              Se ha modificado el stock de {name}
             </Alert>
           </div>
         )}
