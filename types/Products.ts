@@ -24,3 +24,13 @@ export type Order = {
     nameTable: string;
     email: string;
 }
+
+export type Sale = {
+    id: number;
+    userName: string;
+    tableName: string;
+    date: string;
+    tip: number;
+    totalPrice: number;
+    products: OrderItem[];
+};
