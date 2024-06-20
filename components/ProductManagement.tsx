@@ -218,15 +218,9 @@ import Box from '@mui/material/Box';
       <div className="flex bg-gray-800 text-white">
         <SidebarAdmin />
         <div className="w-full p-8">
-          <div className="flex items-center mb-0">
+          <div className='flex justify-between items-center mb-4'>
             <h1 className="text-2xl mb-9">Productos {name}</h1>
             <div className="ml-auto mb-9 flex items-center">
-              <button 
-                className="bg-blue-600 hover:bg-blue-800 text-white px-4 py-2 rounded-lg mr-4"
-                onClick={openCreateModal}
-              >
-                Crear Producto
-              </button>
               <Search className="text-white mr-2" />
               <input
                 type="text"
@@ -235,6 +229,12 @@ import Box from '@mui/material/Box';
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="p-2 rounded-lg bg-gray-700"
               />
+              <button 
+                className="bg-green-600 hover:bg-green-800 text-white px-4 py-2 rounded-lg ml-4"
+                onClick={openCreateModal}
+              >
+                Crear producto
+              </button>
             </div>
           </div>
           
@@ -277,10 +277,10 @@ import Box from '@mui/material/Box';
                       <p>Stock: {product.stock}</p>
                       <p>SKU {product.sku}</p>
                       <button
-                        className="bg-blue-600 hover:bg-blue-800 text-white px-4 py-2 rounded-lg mt-4 mr-2"
+                        className="bg-green-600 hover:bg-green-800 text-white px-4 py-2 rounded-lg mt-4 mr-2"
                         onClick={() => openModal(product)}
                       >
-                        Modificar Stock
+                        Modificar stock
                       </button>
                       <button
                         className="bg-red-600 hover:bg-red-800 text-white px-4 py-2 rounded-lg mt-4"
@@ -385,14 +385,14 @@ import Box from '@mui/material/Box';
                   <div className="mt-6 flex justify-end">
                     <button
                       type="button"
-                      className="bg-gray-500 hover:bg-gray-700 text-white px-4 py-2 rounded-lg mr-4"
+                      className="bg-red-600 hover:bg-red-800 text-white px-4 py-2 rounded-lg mr-4"
                       onClick={closeCreateModal}
                     >
                       Cancelar
                     </button>
                     <button
                       type="button"
-                      className="bg-blue-600 hover:bg-blue-800 text-white px-4 py-2 rounded-lg"
+                      className="bg-green-600 hover:bg-green-800 text-white px-4 py-2 rounded-lg"
                       onClick={handleCreateProduct}
                     >
                       Confirmar
@@ -424,13 +424,13 @@ import Box from '@mui/material/Box';
                 </div>
                 <div className="flex justify-end">
                   <button
-                    className="bg-gray-500 hover:bg-gray-700 text-white px-4 py-2 rounded-lg mr-4"
+                    className="bg-red-600 hover:bg-red-800 text-white px-4 py-2 rounded-lg mr-4"
                     onClick={closeModal}
                   >
                     Cancelar
                   </button>
                   <button
-                    className="bg-blue-600 hover:bg-blue-800 text-white px-4 py-2 rounded-lg"
+                    className="bg-green-600 hover:bg-green-800 text-white px-4 py-2 rounded-lg"
                     onClick={handleConfirmStock}
                   >
                     Confirmar

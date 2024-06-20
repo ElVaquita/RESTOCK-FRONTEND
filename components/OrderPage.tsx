@@ -569,7 +569,7 @@ const OrderPage: React.FC = () => {
           )}
           <div className="flex mt-4 ">
             <p className="flex-grow mt-4">
-              Cantidad de personas (max. 6)
+              Cantidad de comensales (max. 6)
             </p>
             <input
               type= "number"
