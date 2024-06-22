@@ -11,6 +11,10 @@ RUN npm install
 # Copy app source code
 COPY . .
 
+ARG NEXT_PUBLIC_JWT_SECRET
+
+ENV NEXT_PUBLIC_JWT_SECRET=$NEXT_PUBLIC_JWT_SECRET
+
 # Build static assets
 RUN npm run build
 
