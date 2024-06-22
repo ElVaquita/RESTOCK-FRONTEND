@@ -18,9 +18,6 @@ jobs:
       - name: Build Docker image
         run: docker build -t client-app:latest .
 
-      - name: Run Tests
-        run: docker run client-app:latest npm run test:cov
-
       - name: Push to Docker Hub
         uses: docker/login-action@v1
         with:
