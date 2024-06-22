@@ -3,6 +3,8 @@ import type { NextRequest } from "next/server";
 import { jwtVerify } from 'jose';
 import Cookies from 'js-cookie';
 
+export const dynamic = "force-dynamic";
+
 const secret = new TextEncoder().encode(process.env.NEXT_PUBLIC_JWT_SECRET);
 
 if (!secret) {
