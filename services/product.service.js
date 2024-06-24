@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const PRODUCT_URL = "http://localhost:8000/products"
+const PRODUCT_URL = "http://192.168.49.2:30572/products"
 
 
 export const createProductBack = async (name, sku, stock, price, category, description, accessToken) => {

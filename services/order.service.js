@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const ORDER_URL = "http://localhost:8000/orders"
+const ORDER_URL = "http://192.168.49.2:30572/orders"
 
 // TABLES
 
