@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const AUTH_URL = "http://192.168.49.2:30572/auth"
+const AUTH_URL = "http://localhost:8000/auth"
 
 export const getUserBack = async (id, accessToken) => {
     try {
