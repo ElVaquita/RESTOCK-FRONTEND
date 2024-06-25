@@ -79,7 +79,7 @@ const TablesAdmin: React.FC = () => {
     setShowCreateModal(false);
     setName('');
     setQuantity(0);
-    setState('available');
+    setState('Disponible');
   };
 
   const handleCreateTable = async () => {
